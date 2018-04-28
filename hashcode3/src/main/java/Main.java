@@ -25,14 +25,14 @@ class Building {
 }
 
 class P {
-  public P(int s, int x, int y) {
+  public P(double s, int x, int y) {
     this.s = s;
     this.x = x;
     this.y = y;
   }
   int x;
   int y;
-  int s;
+  double s;
 }
 
 class Placement {
@@ -346,7 +346,7 @@ public class Main {
         }
       }
       
-      int sc = check(places, xx, yx, b1);
+      double sc = check(places, xx, yx, b1);
       if (sc > best.s) {
         best = new P(sc, xx, yx);
         return best;
@@ -356,7 +356,7 @@ public class Main {
     return best;
   }
 
-  private int check(List<Placement> places, int xx, int yx, Building b1) {
+  private double check(List<Placement> places, int xx, int yx, Building b1) {
     boolean good = true;
     
     if (yx < 0) {
@@ -395,7 +395,14 @@ public class Main {
       return -1;
     }
 
-    int sc = score2(places, new Placement(b1, b1.i, xx, yx));
+    double sc = score2(places, new Placement(b1, b1.i, xx, yx));
+//    if (sc > 0) {
+//      if (b1.t == 1) {
+//        sc = sc / (b1.w + b1.h);
+//      } else if (b1.t == 2) {
+//        sc = sc * 100;
+//      }
+//    }
     return sc;
   }
 
@@ -465,6 +472,31 @@ public class Main {
   }
 
   private static int dist(Placement p1, Placement p2) {
+    int d = Integer.MAX_VALUE;
+    for (int i1 = 0; i1 < p1.b.w; i1++) {
+      for (int j1 = 0; j1 < p1.b.h; j1++) {
+        if (p1.b.z[i1][j1] == 0) {
+          continue;
+        }
+        int x1 = p1.x + i1;
+        int y1 = p1.y + j1;
+        for (int i2 = 0; i2 < p2.b.w; i2++) {
+          for (int j2 = 0; j2 < p2.b.h; j2++) {
+            if (p2.b.z[i2][j2] == 0) {
+              continue;
+            }
+            int x2 = p2.x + i2;
+            int y2 = p2.y + j2;
+            int D = Math.abs(x1 - x2) + Math.abs(y1 - y2);
+            d = Math.min(D, d);
+          }
+        }
+      }
+    }
+
+    return d;
+  }
+  private static int dist2(Placement p1, Placement p2) {
     int d = Integer.MAX_VALUE;
     for (int i1 = 0; i1 < p1.b.w; i1+=Math.max(p1.b.w - 1, 1)) {
       for (int j1 = 0; j1 < p1.b.h; j1+=Math.max(p1.b.h - 1, 1)) {
