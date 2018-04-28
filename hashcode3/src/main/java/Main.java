@@ -112,7 +112,7 @@ public class Main {
       String[] ss = s.split(" ");
       HH = Integer.parseInt(ss[0]);
       WW = Integer.parseInt(ss[1]);
-      int dd = 10;
+      int dd = 50;
       if (HH > 100) {
         H = HH / dd;
       } else {
@@ -172,47 +172,47 @@ public class Main {
       });
       List<Placement> places = new ArrayList<Placement>();
       // Stats
-      System.out.println();
-      System.out.println("#############################################");
-      System.out.println(filenameOut);
-      System.out.println("H: " + H + " W:" + W + " D:" + D + " B:" + B);
-      System.out.println("Res:" + res.size() + " Util:" + util.size());
-      for (int x : res.keySet()) {
-        Building b = res.get(x);
-        System.out.print(b.w + " " + b.h + " ");
-      }
-      System.out.println();
-      for (int x : util.keySet()) {
-        Building b = util.get(x);
-        System.out.print(b.w + " " + b.h + " ");
-      }
-      System.out.println();
-
-      List<Integer> r = new ArrayList<Integer>();
-      for (int x : res.keySet()) {
-        Building b = res.get(x);
-        r.add(b.r);
-      }
-      Collections.sort(r);
-      for (int x : r) {
-
-        System.out.print(x + " ");
-      }
-      System.out.println();
-
-      r = new ArrayList<Integer>();
-      for (int x : util.keySet()) {
-        Building b = util.get(x);
-        r.add(b.r);
-      }
-      Collections.sort(r);
-      for (int x : r) {
-        System.out.print(x + " ");
-      }
-      System.out.println();
+//      System.out.println();
+//      System.out.println("#############################################");
+//      System.out.println(filenameOut);
+//      System.out.println("H: " + H + " W:" + W + " D:" + D + " B:" + B);
+//      System.out.println("Res:" + res.size() + " Util:" + util.size());
+//      for (int x : res.keySet()) {
+//        Building b = res.get(x);
+//        System.out.print(b.w + " " + b.h + " ");
+//      }
+//      System.out.println();
+//      for (int x : util.keySet()) {
+//        Building b = util.get(x);
+//        System.out.print(b.w + " " + b.h + " ");
+//      }
+//      System.out.println();
+//
+//      List<Integer> r = new ArrayList<Integer>();
+//      for (int x : res.keySet()) {
+//        Building b = res.get(x);
+//        r.add(b.r);
+//      }
+//      Collections.sort(r);
+//      for (int x : r) {
+//
+//        System.out.print(x + " ");
+//      }
+//      System.out.println();
+//
+//      r = new ArrayList<Integer>();
+//      for (int x : util.keySet()) {
+//        Building b = util.get(x);
+//        r.add(b.r);
+//      }
+//      Collections.sort(r);
+//      for (int x : r) {
+//        System.out.print(x + " ");
+//      }
+//      System.out.println();
 
       // Solve
-      Building bb1 = res.get(res.keySet().iterator().next());
+      Building bb1 = resList.get(0);
 //      Building b2 = util.get(util.keySet().iterator().next());
       // List<Building> utilList = new ArrayList<Buildin>();
 
@@ -273,7 +273,7 @@ public class Main {
         for (int i = maxz.x; i < maxz.x + b.w; i++) {
           for (int j = maxz.y; j < maxz.y + b.h; j++) {
             if (b.z[i - maxz.x][j - maxz.y]== 1) {
-              map[i][j] = 1;
+              map[i][j] = b.t == 1 ? 1 : 2;
               mapY[i] = Math.max(mapY[i], j);
             }
           }
@@ -289,10 +289,10 @@ public class Main {
       
       // REZ
       int rez = score(places, D);
-      System.out.println(rez);
+      System.out.println("" + (char) ('A' + kk - 1) + " " + (HH > 100 ? rez * dd * dd : rez));
 
-      writer.println(places.size());
       if (HH > 100) {
+        writer.println((places.size() * dd * dd));
         for (int i = 0; i < dd; i++) {
           for (int j = 0; j < dd; j++) {
             for (Placement place : places) {
@@ -302,7 +302,7 @@ public class Main {
           }
         }
       } else {
-          
+          writer.println(places.size());
           for (Placement place : places) {
             writer.println(place.i + " " + place.y + " " + place.x);
           }        
