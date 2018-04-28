@@ -57,6 +57,8 @@ public class Main {
   private int H;
   private int W;
   private int D;
+  int[][] map;
+  int[] mapY;
 
   public void doIt() throws IOException {
     boolean system = false;
@@ -201,7 +203,11 @@ public class Main {
 //      Building b2 = util.get(util.keySet().iterator().next());
       // List<Building> utilList = new ArrayList<Buildin>();
 
-      int[][] map = new int[W][H];
+      map = new int[W][H];
+      mapY = new int[W];
+      for (int i = 0; i < W; i++) {
+        mapY[i] = -1;
+      }
       places.add(new Placement(bb1, bb1.i, 0, 0));
       for (int i = 0; i < 0 + bb1.w; i++) {
         for (int j = 0; j < 0 + bb1.h; j++) {
@@ -220,7 +226,7 @@ public class Main {
         Building b = null;
         int zz = 0;
         for (Building  b1: res.values()) {
-          P z = placeUtil(places, map, b1);
+          P z = placeUtil(places, b1);
                     
           if (z.s > maxz.s) {
             maxz = z;
@@ -233,7 +239,7 @@ public class Main {
         }
         zz = 0;
         for (Building  b2: util.values()) {
-          P z = placeUtil(places, map, b2);
+          P z = placeUtil(places, b2);
           if (z.s > maxz.s) {
             maxz = z;
             b = b2;
@@ -251,11 +257,12 @@ public class Main {
           for (int j = maxz.y; j < maxz.y + b.h; j++) {
             if (b.z[i - maxz.x][j - maxz.y]== 1) {
               map[i][j] = 1;
+              mapY[i] = Math.max(mapY[i], j);
             }
           }
         }
         score(places, D);
-        if (places.size() > 1000) {
+        if (places.size() > 10000) {
           break;
         }
 //        res.remove(b.i);
@@ -288,59 +295,72 @@ public class Main {
     main.doIt();
   }
 
-  private P placeUtil(List<Placement> places, int[][] map, Building b1) {
+  private P placeUtil(List<Placement> places, Building b1) {
     P best = new P(0, W / 2, H / 2);
     for (int x = 0; x < W; x++) {
-      for (int y = H - 1; y >= 0; y--) {
-        int xx = x;
-        int yx = y + 1;
-        if (map[x][y] == 0) {
-          boolean firstRow = false;
-          if (y == 0 && x > 0) {
-            for (int i = 0; i < b1.h; i++) {
-              if (map[x - 1][y + i]  >0) {
-                firstRow = true;
-              }
+      int xx = x;
+      int yx = mapY[x] + 1;
+      if (yx == -1) {
+        boolean firstRow = false;
+        if (x > 0) {
+          for (int i = 0; i < b1.h; i++) {
+            if (map[x - 1][yx + 1 + i]  >0) {
+              firstRow = true;
             }
           }
-          if (firstRow) {
-            y = 0;
-          } else {
-            continue;
-          }
         }
-        
-        int sc = check(map, places, xx, yx, b1);
-        if (sc > best.s) {
-          best = new P(sc, xx, yx);
-          return best;
+        if (firstRow) {
+          yx = 0;
+        } else {
+          continue;
         }
       }
+      
+      int sc = check(places, xx, yx, b1);
+      if (sc > best.s) {
+        best = new P(sc, xx, yx);
+        return best;
+      }
+    
     }
     return best;
   }
 
-  private int check(int[][] map, List<Placement> places, int xx, int yx, Building b1) {
+  private int check(List<Placement> places, int xx, int yx, Building b1) {
     boolean good = true;
     
     if (yx < 0) {
       return -1;
     }
-
-    
-    for (int i = xx; i < xx + b1.w; i++) {
-      for (int j = yx; j < yx + b1.h; j++) {
-        if (i >= W) {
-          return -1;
-        }
-        if (j >= H) {
-          return -1;
-        }
-        if (map[i][j] > 0) {
-          good = false;
-        }
-      }
+    if (yx + b1.h >= H) {
+      return -1;
     }
+
+    for (int i = xx; i < xx + b1.w; i++) {
+      if (i >= W) {
+        good = false;
+        break;
+      }
+      if (mapY[i] >= yx) {
+        good = false;
+        break;
+      }
+      
+    }
+
+//    for (int i = xx; i < xx + b1.w; i++) {
+//      for (int j = yx; j < yx + b1.h; j++) {
+//        if (i >= W) {
+//          return -1;
+//        }
+//        if (j >= H) {
+//          return -1;
+//        }
+//        if (map[i][j] > 0) {
+//          good = false;
+//        }
+//      }
+//    }
     if (!good) {
       return -1;
     }
@@ -416,15 +436,15 @@ public class Main {
 
   private static int dist(Placement p1, Placement p2) {
     int d = Integer.MAX_VALUE;
-    for (int i1 = 0; i1 < p1.b.w; i1++) {
-      for (int j1 = 0; j1 < p1.b.h; j1++) {
+    for (int i1 = 0; i1 < p1.b.w; i1+=Math.max(p1.b.w - 1, 1)) {
+      for (int j1 = 0; j1 < p1.b.h; j1+=Math.max(p1.b.h - 1, 1)) {
         if (p1.b.z[i1][j1] == 0) {
           continue;
         }
         int x1 = p1.x + i1;
         int y1 = p1.y + j1;
-        for (int i2 = 0; i2 < p2.b.w; i2++) {
-          for (int j2 = 0; j2 < p2.b.h; j2++) {
+        for (int i2 = 0; i2 < p2.b.w; i2+=Math.max(p2.b.w - 1, 1)) {
+          for (int j2 = 0; j2 < p2.b.h; j2+= Math.max(p2.b.h - 1, 1)) {
             if (p2.b.z[i2][j2] == 0) {
               continue;
             }
