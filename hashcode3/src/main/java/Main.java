@@ -292,11 +292,23 @@ public class Main {
     P best = new P(0, W / 2, H / 2);
     for (int x = 0; x < W; x++) {
       for (int y = H - 1; y >= 0; y--) {
-        if (map[x][y] == 0) {
-          continue;
-        }
         int xx = x;
         int yx = y + 1;
+        if (map[x][y] == 0) {
+          boolean firstRow = false;
+          if (y == 0 && x > 0) {
+            for (int i = 0; i < b1.h; i++) {
+              if (map[x - 1][y + i]  >0) {
+                firstRow = true;
+              }
+            }
+          }
+          if (firstRow) {
+            y = 0;
+          } else {
+            continue;
+          }
+        }
         
         int sc = check(map, places, xx, yx, b1);
         if (sc > best.s) {
