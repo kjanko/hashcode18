@@ -37,8 +37,10 @@ class Photo {
 
 public class Main {
 
-  String[] files = new String[]{"a_example.txt", "b_lovely_landscapes.txt", "c_memorable_moments.txt",
+  String[] files2 = new String[]{"a_example.txt", "b_lovely_landscapes.txt", "c_memorable_moments.txt",
       "d_pet_pictures.txt", "e_shiny_selfies.txt"};
+  
+  String[] files = new String[]{ "e_shiny_selfies.txt"};
 
   public void doIt() throws IOException {
     int[] o;
@@ -253,6 +255,7 @@ public class Main {
         for (int i = 0; i < p.ts.length; i++) {
           map.get(p.ts[i]).remove(p);
         }
+        int counter = 0;
         while (!done) {
           Photo nextPhoto = null;
           int bestsc = -1;
@@ -293,6 +296,10 @@ public class Main {
             break;
           }
           p = nextPhoto;
+          counter++;
+          if (counter % 100 == 0) {
+            System.out.println(counter);
+          }
           result.add(p);
           for (int i = 0; i < p.ts.length; i++) {
             map.get(p.ts[i]).remove(p);
