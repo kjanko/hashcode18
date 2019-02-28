@@ -40,7 +40,12 @@ public class Main {
   String[] files2 = new String[]{"a_example.txt", "b_lovely_landscapes.txt", "c_memorable_moments.txt",
       "d_pet_pictures.txt", "e_shiny_selfies.txt"};
   
-  String[] files = new String[]{ "e_shiny_selfies.txt"};
+  String[] files3 = new String[]{ "e_shiny_selfies.txt"};
+  
+  String[] files4 = new String[]{"b_lovely_landscapes.txt"};
+  
+  String[] files = new String[]{"c_memorable_moments.txt",
+      "d_pet_pictures.txt", "e_shiny_selfies.txt"};
 
   public void doIt() throws IOException {
     int[] o;
@@ -186,12 +191,84 @@ public class Main {
           return p1.ts.length - p2.ts.length;
         }
       });  
-      for (int j = 0; j < v.size() / 2; j++) {
-        Photo p1 = v.get(j);
-        Photo p2 = v.get(v.size() - j - 1);
-        Photo p = merge(p1, p2);
-        toSort.add(p);
+      System.out.println("ToSortBefore : " + toSort.size());
+      int counter2 = 0;
+      int vsortAlgo = 1;
+      if (vsortAlgo == 1) {
+
+        int minTag = 30;
+        int maxTag = 0;
+        Set<Photo>[] vset = new Set[30];
+        for (int k = 0; k < vset.length; k++) {
+          vset[k] = new HashSet<Photo>();
+        }
+        for (Photo p : v) {
+          vset[p.ts.length].add(p);
+          minTag = Math.min(minTag, p.ts.length);
+          maxTag = Math.max(maxTag, p.ts.length);
+        }
+
+        while (minTag <= maxTag) {
+          counter2++;
+          if (counter2 % 10000 == 0) {
+            System.out.println(counter2);
+          }
+          while (vset[minTag].size() == 0 && minTag < 29) {
+            minTag++;
+          }
+          while (vset[maxTag].size() == 0 && maxTag > 0) {
+            maxTag--;
+          }
+          if (minTag > maxTag) {
+            break;
+          }
+          int sc = 10000;
+          Photo bestp1 = null;
+          Photo bestp2 = null;
+          
+          int ip1 = 0;
+          for (Photo p1 : vset[minTag]) {
+            ip1++;
+            if (ip1 == 200) {
+              break;
+            }
+            int ip2 = 0;
+            for (Photo p2 : vset[maxTag]) {
+              ip2++;
+              if (ip2 == 200) {
+                break;
+              }
+              if (p1 == p2) {
+                continue;
+              }
+              int sc2 = getOverlap(p1, p2);
+              if (sc2 < sc) {
+                sc = sc2;
+                bestp1 = p1;
+                bestp2 = p2;
+              }
+            }
+          }
+          if (bestp1 == null) {
+            break;
+          }
+          vset[minTag].remove(bestp1);
+          vset[maxTag].remove(bestp2);
+          Photo p = merge(bestp1, bestp2);
+          toSort.add(p);
+        }
       }
+      if (vsortAlgo == 2) {
+        for (int j = 0; j < v.size() / 2; j++) {
+          Photo p1 = v.get(j);
+          Photo p2 = v.get(v.size() - j - 1);
+          Photo p = merge(p1, p2);
+          toSort.add(p);
+        }
+      }
+      System.out.println("ToSort : " + toSort.size());
+      
+
       
       toSort.sort(new Comparator<Photo>() {
         @Override
@@ -204,9 +281,9 @@ public class Main {
         sorted.add(photo);
       }
       
-      
+      int counter = 0;
       // Algo 1
-      int algo = 2;
+      int algo = 1;
       if (algo == 1) {
         done = false;
         Photo p = sorted.remove(0);
@@ -234,6 +311,10 @@ public class Main {
           }
           p = best;
           result.add(p);
+          counter++;
+          if (counter % 10000 == 0) {
+            System.out.println(counter);
+          }
           sorted.remove(bestix);
         }
       }
@@ -255,7 +336,7 @@ public class Main {
         for (int i = 0; i < p.ts.length; i++) {
           map.get(p.ts[i]).remove(p);
         }
-        int counter = 0;
+
         while (!done) {
           Photo nextPhoto = null;
           int bestsc = -1;
@@ -297,14 +378,13 @@ public class Main {
           }
           p = nextPhoto;
           counter++;
-          if (counter % 100 == 0) {
+          if (counter % 10000 == 0) {
             System.out.println(counter);
           }
           result.add(p);
           for (int i = 0; i < p.ts.length; i++) {
             map.get(p.ts[i]).remove(p);
           }
-          
         }
       }
 
@@ -331,6 +411,27 @@ public class Main {
 
     }
     System.out.println("Done");
+  }
+
+  private int getOverlap(Photo p1, Photo p2) {
+    int common = 0;
+
+    int x1 = 0;
+    int x2 = 0;
+    while (x1 < p1.ts.length && x2 < p2.ts.length) {
+      if (p1.ts[x1] < p2.ts[x2]) {
+
+        x1++;
+      } else if (p1.ts[x1] > p2.ts[x2]) {
+
+        x2++;
+      } else {
+        common++;
+        x1++;
+        x2++;
+      }
+    }
+    return common;
   }
 
   private int calcScore(List<Photo> result) {
