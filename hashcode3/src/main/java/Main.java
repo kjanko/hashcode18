@@ -189,35 +189,42 @@ public class Main {
         sorted.add(photo);
       }
       
-      done = false;
-      Photo p = sorted.remove(0);
-      result.add(p);
-      while (!done) {
-        if (sorted.isEmpty()) {
-          done = true;
-          break;
-        }
-        int ix = 0;
-        Photo best = null;
-        int bests = -1;
-        int bestix = 0;
-        for (Photo photo : sorted) {
-          int tbests = getScore(p, photo);
-          if (tbests > bests) {
-            best = photo;
-            bestix = ix;
-            bests = tbests;
-          }
-          ix++;
-          if (ix > 10000) {
+      
+      // Algo 1
+      int algo = 2;
+      if (algo == 1) {
+        done = false;
+        Photo p = sorted.remove(0);
+        result.add(p);
+        while (!done) {
+          if (sorted.isEmpty()) {
+            done = true;
             break;
           }
+          int ix = 0;
+          Photo best = null;
+          int bests = -1;
+          int bestix = 0;
+          for (Photo photo : sorted) {
+            int tbests = getScore(p, photo);
+            if (tbests > bests) {
+              best = photo;
+              bestix = ix;
+              bests = tbests;
+            }
+            ix++;
+            if (ix > 10000) {
+              break;
+            }
+          }
+          p = best;
+          result.add(p);
+          sorted.remove(bestix);
         }
-        p = best;
-        result.add(p);
-        sorted.remove(bestix);
       }
-
+      if (algo == 2) {
+        
+      }
 
       writer.println(result.size());
       for (Photo photo : result) {
