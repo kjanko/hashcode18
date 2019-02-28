@@ -267,10 +267,10 @@ public class Main {
                 nextPhoto = photo;
                 bestsc = sc;
               } else if (sc == bestsc) {
-                if (nextPhoto.ts.length > photo.ts.length) {
-                  nextPhoto = photo;
-                  bestsc = sc;                  
-                }
+//                if (nextPhoto.ts.length > photo.ts.length) {
+//                  nextPhoto = photo;
+//                  bestsc = sc;                  
+//                }
               }
             }
           }
