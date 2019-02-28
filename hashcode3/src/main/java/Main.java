@@ -6,91 +6,49 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class Building {
+class Photo {
 
-  int i;
-  int t;
-  int[][] z;
-  int h;
-  int w;
-  int r;
-}
-
-class P {
-  public P(double s, int x, int y) {
-    this.s = s;
-    this.x = x;
-    this.y = y;
-  }
-  int x;
-  int y;
-  double s;
-}
-
-class Placement {
-
-  Set<Integer> utilities;
-  public Placement(Building b, int i, int x, int y) {
-    this.b = b;
-    this.x = x;
-    this.y = y;
-    this.i = i;
-    utilities = new HashSet<Integer>();
-  }
-
-  Building b;
-  int i;
-  int x;
-  int y;
+  int index;
+  int index2 = -1;
+  List<String> tags;
+  int[] ts;
 }
 
 public class Main {
 
-  private int H;
-  private int W;
-  private int HH;
-  private int WW;
-  private int D;
-  int[][] map;
-  int[] mapY;
+  String[] files = new String[]{"a_example.txt", "b_lovely_landscapes.txt", "c_memorable_moments.txt",
+      "d_pet_pictures.txt", "e_shiny_selfies.txt"};
 
   public void doIt() throws IOException {
-    boolean system = false;
+    int[] o;
+    int[] t;
+    List<String>[] tags;
 
-    for (int kk = 1; kk <= 6; kk++) {
+    boolean system = false;
+    int runOne = -1;
+
+    for (int kk = 1; kk <= files.length; kk++) {
+      System.out.println();
+      if (runOne != -1) {
+        kk = runOne;
+      }
       String filenameIn = "files/";
       String filenameOut = "src/main/java/";
-//      if (kk != 2) {
-//        continue;
-//      }
+
       if (!system) {
-        String filename = "";
-        if (kk == 1) {
-          filename += "a_example.in";
-        }
-        if (kk == 2) {
-          filename += "b_short_walk.in";
-        }
-        if (kk == 3) {
-          filename += "c_going_green.in";
-        }
-        if (kk == 4) {
-          filename += "d_wide_selection.in";
-        }
-        if (kk == 5) {
-          filename += "e_precise_fit.in";
-        }
-        if (kk == 6) {
-          filename += "f_different_footprints.in";
-        }
+        String filename = files[kk - 1];
+
+        System.out.println("Start " + filename);
+
         filenameIn += filename;
         filenameOut += filename;
       }
@@ -104,210 +62,173 @@ public class Main {
       if (system) {
         writer = new PrintWriter(System.out);
       } else {
-        writer = new PrintWriter(new FileWriter(filenameOut.replace(".in", ".out")));
+        writer = new PrintWriter(new FileWriter(filenameOut.replace(".txt", ".out")));
       }
 
       // ////
       String s = br.readLine();
-      String[] ss = s.split(" ");
-      HH = Integer.parseInt(ss[0]);
-      WW = Integer.parseInt(ss[1]);
-      int dd = 50;
-      if (HH > 100) {
-        H = HH / dd;
-      } else {
-        H = HH;
-      }
-      if (WW > 100) {
-        W = WW / dd;
-      } else {
-        W = WW;
-      }
-      D = Integer.parseInt(ss[2]);
-      int B = Integer.parseInt(ss[3]);
 
-      Map<Integer, Building> res = new HashMap<Integer, Building>();
-      Map<Integer, Building> util = new HashMap<Integer, Building>();
-      List<Building> resList = new ArrayList<Building>();
-
-      for (int i = 0; i < B; i++) {
+      int N = Integer.parseInt(s);
+      o = new int[N];
+      t = new int[N];
+      tags = new List[N];
+      for (int i = 0; i < N; i++) {
         s = br.readLine();
-        ss = s.split(" ");
-        String t = ss[0];
-        int h = Integer.parseInt(ss[1]);
-        int w = Integer.parseInt(ss[2]);
-        int ru = Integer.parseInt(ss[3]);
-        int[][] z = new int[w][h];
-        for (int j = 0; j < h; j++) {
-          s = br.readLine();
-          for (int j2 = 0; j2 < s.length(); j2++) {
-            z[j2][j] = s.charAt(j2) == '#' ? 1 : 0;
-          }
+        String[] ss = s.split(" ");
+        if (ss[0].equals("H")) {
+          o[i] = 1;
         }
-        Building b = new Building();
-        b.i = i;
-        b.h = h;
-        b.w = w;
-        b.r = ru;
-        b.z = z;
-        if (t.equals("R")) {
-          b.t = 1;
-          res.put(i, b);
-          resList.add(b);
+        t[i] = Integer.parseInt(ss[1]);
+        tags[i] = new ArrayList<String>();
+        for (int j = 0; j < t[i]; j++) {
+          tags[i].add(ss[2 + j]);
+        }
+      }
+      System.out.println("Photos : " + N);
+      int x = 0;
+      for (int i = 0; i < N; i++) {
+        if (o[i] == 1) {
+          x++;
+        }
+      }
+      int horizontal = x;
+      int vertical = N - x;
+      System.out.println("Horizontal : " + x + " Vertical : " + (N - x));
+
+      // Arrays.sort(t);
+      Set<String> set = new HashSet<String>();
+      for (int i = 0; i < t.length; i++) {
+        // System.out.print(t[i] + " ");
+        // if (i %100 == 0) {
+        // System.out.println();
+        // }
+        for (String tt : tags[i]) {
+          set.add(tt);
+        }
+      }
+      Map<String, Integer> map = new HashMap<String, Integer>();
+      int ii = 0;
+      for (String string : set) {
+        map.put(string, ii);
+        ii++;
+      }
+       System.out.println("Max tags per photo: " + t[t.length - 1]);
+      // System.out.println();
+       System.out.println("Total different tags: " + set.size());
+
+      List<Photo> h = new ArrayList<Photo>();
+      List<Photo> v = new ArrayList<Photo>();
+      for (int i = 0; i < N; i++) {
+        Photo p = new Photo();
+        p.index = i;
+        p.tags = tags[i];
+        int[] ts = new int[p.tags.size()];
+        int j = 0;
+        for (String ss : p.tags) {
+          ts[j] = map.get(ss);
+          j++;
+        }
+        p.ts = ts;
+        Arrays.sort(p.ts);
+
+        if (o[i] == 1) {
+          h.add(p);
         } else {
-          b.t = 2;
-          util.put(i, b);
+          v.add(p);
         }
       }
 
-      Collections.sort(resList, new Comparator<Building>() {
-        @Override
-        public int compare(Building o1, Building o2) {
-          int x = o2.r - o1.r;
-          if (x == 0) {
-            return o1.w * o1.h - o2.w * o2.h;
-          }
-          return x;
-        }
-      });
-      List<Placement> places = new ArrayList<Placement>();
-      // Stats
-//      System.out.println();
-//      System.out.println("#############################################");
-//      System.out.println(filenameOut);
-//      System.out.println("H: " + H + " W:" + W + " D:" + D + " B:" + B);
-//      System.out.println("Res:" + res.size() + " Util:" + util.size());
-//      for (int x : res.keySet()) {
-//        Building b = res.get(x);
-//        System.out.print(b.w + " " + b.h + " ");
-//      }
-//      System.out.println();
-//      for (int x : util.keySet()) {
-//        Building b = util.get(x);
-//        System.out.print(b.w + " " + b.h + " ");
-//      }
-//      System.out.println();
-//
-//      List<Integer> r = new ArrayList<Integer>();
-//      for (int x : res.keySet()) {
-//        Building b = res.get(x);
-//        r.add(b.r);
-//      }
-//      Collections.sort(r);
-//      for (int x : r) {
-//
-//        System.out.print(x + " ");
-//      }
-//      System.out.println();
-//
-//      r = new ArrayList<Integer>();
-//      for (int x : util.keySet()) {
-//        Building b = util.get(x);
-//        r.add(b.r);
-//      }
-//      Collections.sort(r);
-//      for (int x : r) {
-//        System.out.print(x + " ");
-//      }
-//      System.out.println();
+      int indH = 0;
+      int indV = 0;
+      List<Photo> result = new ArrayList<Photo>();
 
-      // Solve
-      Building bb1 = resList.get(0);
-//      Building b2 = util.get(util.keySet().iterator().next());
-      // List<Building> utilList = new ArrayList<Buildin>();
+      boolean done = false;
+      while (!done) {
+        // get 20 photos, make a dp for best score
+        int nextH = Math.min(h.size() - indH, 10);
+        int nextV = Math.min(v.size() - indV, 20) / 2 * 2;
+        if (nextV < 10) {
+          nextH = Math.min(h.size() - indH, 10 + 10 - nextV);
+        }
+        if (nextH < 10) {
+          nextV = Math.min(v.size() - indV, 20 + 20 - nextH * 2) / 2 * 2;
+        }
 
-      map = new int[W][H];
-      mapY = new int[W];
-      for (int i = 0; i < W; i++) {
-        mapY[i] = -1;
-      }
-      places.add(new Placement(bb1, bb1.i, 0, 0));
-      for (int i = 0; i < 0 + bb1.w; i++) {
-        for (int j = 0; j < 0 + bb1.h; j++) {
-          if (bb1.z[i - 0][j - 0]== 1) {
-            map[i][j] = 1;
-            mapY[i] = Math.max(mapY[i], j);
-          }
-        }
-      }
-//      places.add(new Placement(b2, b2.i, b1.w, b1.h));
-
-//      places.remove(b1.i);
-      
-      
-      while (true) {
-        P maxz = new P(0, W / 2, H / 2);
-        Building b = null;
-        int zz = 0;
-        for (Building  b1: res.values()) {
-          P z = placeUtil(places, b1);
-                    
-          if (z.s > maxz.s) {
-            maxz = z;
-            b = b1;
-          }
-          
-//          if (zz++ > 0) {
-//            break;
-//          }
-        }
-        zz = 0;
-        for (Building  b2: util.values()) {
-          P z = placeUtil(places, b2);
-          if (z.s > maxz.s) {
-            maxz = z;
-            b = b2;
-          }
-//          if (zz++ > 0) {
-//            break;
-//          }
-        }
-        if (maxz.s == 0) {
+        if (nextH == 0 && nextV == 0) {
           break;
         }
-        
-        places.add(new Placement(b, b.i, maxz.x, maxz.y));
-//        if (places.size() % 100== 0) {
-//          System.out.println(places.size());
-//        }
-        for (int i = maxz.x; i < maxz.x + b.w; i++) {
-          for (int j = maxz.y; j < maxz.y + b.h; j++) {
-            if (b.z[i - maxz.x][j - maxz.y]== 1) {
-              map[i][j] = b.t == 1 ? 1 : 2;
-              mapY[i] = Math.max(mapY[i], j);
-            }
-          }
-        }
-        score(places, D);
-//        if (places.size() > 1000) {
-//          break;
-//        }
-//        res.remove(b.i);
-//        util.remove(b.i);
+        indH = indH + nextH;
+        indV = indV + nextV;
       }
-      
-      
-      // REZ
-      int rez = score(places, D);
-      System.out.println("" + (char) ('A' + kk - 1) + " " + (HH > 100 ? rez * dd * dd : rez));
 
-      if (HH > 100) {
-        writer.println((places.size() * dd * dd));
-        for (int i = 0; i < dd; i++) {
-          for (int j = 0; j < dd; j++) {
-            for (Placement place : places) {
-              writer.println(place.i + " " + (H * j + place.y) + " " + (W * i + place.x));
-            }        
-            
+      // Sort photos according to number of tags
+      List<Photo> toSort = new ArrayList<Photo>();
+      toSort.addAll(h);
+      
+      v.sort(new Comparator<Photo>() {
+        @Override
+        public int compare(Photo p1, Photo p2) {
+          return p1.ts.length - p2.ts.length;
+        }
+      });  
+      for (int j = 0; j < v.size() / 2; j++) {
+        Photo p1 = v.get(j);
+        Photo p2 = v.get(v.size() - j - 1);
+        Photo p = merge(p1, p2);
+        toSort.add(p);
+      }
+      
+      toSort.sort(new Comparator<Photo>() {
+        @Override
+        public int compare(Photo p1, Photo p2) {
+          return p1.ts.length - p2.ts.length;
+        }
+      });
+      LinkedList<Photo> sorted = new LinkedList<Photo>();
+      for (Photo photo : toSort) {
+        sorted.add(photo);
+      }
+      
+      done = false;
+      Photo p = sorted.remove(0);
+      result.add(p);
+      while (!done) {
+        if (sorted.isEmpty()) {
+          done = true;
+          break;
+        }
+        int ix = 0;
+        Photo best = null;
+        int bests = -1;
+        int bestix = 0;
+        for (Photo photo : sorted) {
+          int tbests = getScore(p, photo);
+          if (tbests > bests) {
+            best = photo;
+            bestix = ix;
+            bests = tbests;
+          }
+          ix++;
+          if (ix > 10000) {
+            break;
           }
         }
-      } else {
-          writer.println(places.size());
-          for (Placement place : places) {
-            writer.println(place.i + " " + place.y + " " + place.x);
-          }        
-        
+        p = best;
+        result.add(p);
+        sorted.remove(bestix);
       }
+
+
+      writer.println(result.size());
+      for (Photo photo : result) {
+        if (photo.index2 != -1) {
+          writer.println(photo.index + " " + photo.index2);
+        } else {
+          writer.println(photo.index);
+        }
+      }
+
+      System.out.println("Score : " + calcScore(result));
 
       writer.flush();
       if (system) {
@@ -315,211 +236,105 @@ public class Main {
       } else {
         writer.close();
       }
+      if (runOne != -1) {
+        break;
+      }
 
     }
+    System.out.println("Done");
+  }
 
+  private int calcScore(List<Photo> result) {
+    int score = 0;
+    Photo lastPhoto = null;
+    for (Photo photo : result) {
+      if (lastPhoto != null) {
+        score += getScore(lastPhoto, photo);
+      }
+      lastPhoto = photo;
+    }
+    return score;
+  }
+
+  public int getScore(Photo p1, Photo p2) {
+    int common = 0;
+    int first = 0;
+    int second = 0;
+
+    int x1 = 0;
+    int x2 = 0;
+    while (x1 < p1.ts.length && x2 < p2.ts.length) {
+      if (p1.ts[x1] < p2.ts[x2]) {
+        first++;
+        x1++;
+      } else if (p1.ts[x1] > p2.ts[x2]) {
+        second++;
+        x2++;
+      } else {
+        common++;
+        x1++;
+        x2++;
+      }
+    }
+    while (x1 < p1.ts.length) {
+      first++;
+      x1++;
+    }
+    while (x2 < p2.ts.length) {
+      second++;
+      x2++;
+    }
+
+    return Math.min(common, Math.min(first, second));
+  }
+
+  public Photo merge(Photo p1, Photo p2) {
+    Photo p = new Photo();
+    p.index = p1.index;
+    p.index2 = p2.index;
+
+    int[] ts = new int[p1.ts.length + p2.ts.length];
+    int x1 = 0;
+    int x2 = 0;
+    int i = 0;
+    while (x1 < p1.ts.length && x2 < p2.ts.length) {
+      if (p1.ts[x1] < p2.ts[x2]) {
+        ts[i] = p1.ts[x1];
+        i++;
+        x1++;
+      } else if (p1.ts[x1] > p2.ts[x2]) {
+        ts[i] = p2.ts[x2];
+        i++;
+        x2++;
+      } else {
+        ts[i] = p1.ts[x1];
+        i++;
+        x1++;
+        x2++;
+      }
+    }
+    while (x1 < p1.ts.length) {
+      ts[i] = p1.ts[x1];
+      i++;
+      x1++;
+    }
+    while (x2 < p2.ts.length) {
+      ts[i] = p2.ts[x2];
+      i++;
+      x2++;
+    }
+    int[] tts = new int[i];
+    for (int j = 0; j < tts.length; j++) {
+      tts[j] = ts[j];
+    }
+    Arrays.sort(tts);
+    p.ts = tts;
+    return p;
   }
 
   public static void main(String[] args) throws IOException {
     Main main = new Main();
     main.doIt();
-  }
-
-  private P placeUtil(List<Placement> places, Building b1) {
-    P best = new P(0, W / 2, H / 2);
-    for (int x = 0; x < W; x++) {
-      int xx = x;
-      int yx = mapY[x] + 1;
-      if (yx == -1) {
-        boolean firstRow = false;
-        if (x > 0) {
-          for (int i = 0; i < b1.h; i++) {
-            if (map[x - 1][yx + 1 + i]  >0) {
-              firstRow = true;
-            }
-          }
-        }
-        if (firstRow) {
-          yx = 0;
-        } else {
-          continue;
-        }
-      }
-      
-      double sc = check(places, xx, yx, b1);
-      if (sc > best.s) {
-        best = new P(sc, xx, yx);
-        return best;
-      }
-    
-    }
-    return best;
-  }
-
-  private double check(List<Placement> places, int xx, int yx, Building b1) {
-    boolean good = true;
-    
-    if (yx < 0) {
-      return -1;
-    }
-    if (yx + b1.h >= H) {
-      return -1;
-    }
-
-    for (int i = xx; i < xx + b1.w; i++) {
-      if (i >= W) {
-        good = false;
-        break;
-      }
-      if (mapY[i] >= yx) {
-        good = false;
-        break;
-      }
-      
-    }
-
-//    for (int i = xx; i < xx + b1.w; i++) {
-//      for (int j = yx; j < yx + b1.h; j++) {
-//        if (i >= W) {
-//          return -1;
-//        }
-//        if (j >= H) {
-//          return -1;
-//        }
-//        if (map[i][j] > 0) {
-//          good = false;
-//        }
-//      }
-//    }
-    if (!good) {
-      return -1;
-    }
-
-    double sc = score2(places, new Placement(b1, b1.i, xx, yx));
-//    if (sc > 0) {
-//      if (b1.t == 1) {
-//        sc = sc / (b1.w + b1.h);
-//      } else if (b1.t == 2) {
-//        sc = sc * 100;
-//      }
-//    }
-    return sc;
-  }
-
-  private static int score(List<Placement> places, int D) {
-    int rez = 0;
-    for (Placement p1 : places) {
-      if (p1.b.t == 2) {
-        continue;
-      }
-      Set<Integer> set = new HashSet<Integer>();
-      for (Placement p2 : places) {
-        if (p2.b.t == 1) {
-          continue;
-        }
-        if (p1.i == p2.i) {
-          continue;
-        }
-        int d = dist(p1, p2);
-        if (d <= D) {
-          set.add(p2.b.r);
-          p1.utilities.add(p2.b.r);
-        }
-      }
-      rez = rez + p1.b.r * set.size();
-    }
-    return rez;
-  }
-
-  private int score2(List<Placement> places, Placement place) {
-    int rez = 0;
-    if (place.b.t == 1) {
-      Set<Integer> set = new HashSet<Integer>();
-      for (Placement p2 : places) {
-        if (p2.b.t == 1) {
-          continue;
-        }
-        if (place.i == p2.i) {
-          continue;
-        }
-        int d = dist(place, p2);
-        if (d <= this.D) {
-          set.add(p2.b.r);
-        }
-      }
-      rez = rez + place.b.r * set.size();
-    }
-    if (place.b.t == 2) {
-      for (Placement p2 : places) {
-        if (p2.b.t == 2) {
-          continue;
-        }
-        if (place.i == p2.i) {
-          continue;
-        }
-
-        int d = dist(place, p2);
-        
-        if (d <= this.D) {
-          if (!p2.utilities.contains(place.b.t)) {
-            rez = rez + p2.b.t;
-          }
-        }
-      }
-//      rez = rez + place.b.r * set.size();
-    }
-    return rez;
-  }
-
-  private static int dist(Placement p1, Placement p2) {
-    int d = Integer.MAX_VALUE;
-    for (int i1 = 0; i1 < p1.b.w; i1++) {
-      for (int j1 = 0; j1 < p1.b.h; j1++) {
-        if (p1.b.z[i1][j1] == 0) {
-          continue;
-        }
-        int x1 = p1.x + i1;
-        int y1 = p1.y + j1;
-        for (int i2 = 0; i2 < p2.b.w; i2++) {
-          for (int j2 = 0; j2 < p2.b.h; j2++) {
-            if (p2.b.z[i2][j2] == 0) {
-              continue;
-            }
-            int x2 = p2.x + i2;
-            int y2 = p2.y + j2;
-            int D = Math.abs(x1 - x2) + Math.abs(y1 - y2);
-            d = Math.min(D, d);
-          }
-        }
-      }
-    }
-
-    return d;
-  }
-  private static int dist2(Placement p1, Placement p2) {
-    int d = Integer.MAX_VALUE;
-    for (int i1 = 0; i1 < p1.b.w; i1+=Math.max(p1.b.w - 1, 1)) {
-      for (int j1 = 0; j1 < p1.b.h; j1+=Math.max(p1.b.h - 1, 1)) {
-        if (p1.b.z[i1][j1] == 0) {
-          continue;
-        }
-        int x1 = p1.x + i1;
-        int y1 = p1.y + j1;
-        for (int i2 = 0; i2 < p2.b.w; i2+=Math.max(p2.b.w - 1, 1)) {
-          for (int j2 = 0; j2 < p2.b.h; j2+= Math.max(p2.b.h - 1, 1)) {
-            if (p2.b.z[i2][j2] == 0) {
-              continue;
-            }
-            int x2 = p2.x + i2;
-            int y2 = p2.y + j2;
-            int D = Math.abs(x1 - x2) + Math.abs(y1 - y2);
-            d = Math.min(D, d);
-          }
-        }
-      }
-    }
-
-    return d;
   }
 
 }
