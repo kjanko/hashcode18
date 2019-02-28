@@ -228,15 +228,21 @@ public class Main {
           Photo bestp2 = null;
           
           int ip1 = 0;
+          int III = 100;
+          int tag1 = 0;
+          int tag2 = 0;
           for (Photo p1 : vset[minTag]) {
             ip1++;
-            if (ip1 == 200) {
+            if (ip1 == III) {
               break;
             }
             int ip2 = 0;
-            for (Photo p2 : vset[maxTag]) {
+            for (Photo p2 : vset[minTag]) {
+              if (p1 == p2) {
+                continue;
+              }
               ip2++;
-              if (ip2 == 200) {
+              if (ip2 == III) {
                 break;
               }
               if (p1 == p2) {
@@ -247,14 +253,69 @@ public class Main {
                 sc = sc2;
                 bestp1 = p1;
                 bestp2 = p2;
+                tag1 = minTag;
+                tag2 = minTag;
+              }
+            }
+          }
+          ip1 = 0;
+          for (Photo p1 : vset[minTag]) {
+            ip1++;
+            if (ip1 == III) {
+              break;
+            }
+            int ip2 = 0;
+            for (Photo p2 : vset[maxTag]) {
+              ip2++;
+              if (ip2 == III) {
+                break;
+              }
+              if (p1 == p2) {
+                continue;
+              }
+              int sc2 = getOverlap(p1, p2);
+              if (sc2 < sc) {
+                sc = sc2;
+                bestp1 = p1;
+                bestp2 = p2;
+                tag1 = minTag;
+                tag2 = maxTag;
+              }
+            }
+          }
+          ip1 = 0;
+          for (Photo p1 : vset[maxTag]) {
+            ip1++;
+            if (ip1 == III) {
+              break;
+            }
+            int ip2 = 0;
+            for (Photo p2 : vset[maxTag]) {
+              if (p1 == p2) {
+                continue;
+              }
+              ip2++;
+              if (ip2 == III) {
+                break;
+              }
+              if (p1 == p2) {
+                continue;
+              }
+              int sc2 = getOverlap(p1, p2);
+              if (sc2 < sc) {
+                sc = sc2;
+                bestp1 = p1;
+                bestp2 = p2;
+                tag1 = maxTag;
+                tag2 = maxTag;
               }
             }
           }
           if (bestp1 == null) {
             break;
           }
-          vset[minTag].remove(bestp1);
-          vset[maxTag].remove(bestp2);
+          vset[tag1].remove(bestp1);
+          vset[tag2].remove(bestp2);
           Photo p = merge(bestp1, bestp2);
           toSort.add(p);
         }
