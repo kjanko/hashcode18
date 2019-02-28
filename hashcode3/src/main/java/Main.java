@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,17 @@ class Photo {
   int index2 = -1;
   List<String> tags;
   int[] ts;
+  @Override
+  public int hashCode() {
+    return index * 37;
+  }
+  @Override
+  public boolean equals(Object obj) {
+    Photo p = (Photo) obj;
+    return index == p.index;
+  }
+
+
 }
 
 public class Main {
@@ -106,12 +118,13 @@ public class Main {
           set.add(tt);
         }
       }
-      Map<String, Integer> map = new HashMap<String, Integer>();
+      Map<String, Integer> tagMap = new HashMap<String, Integer>();
       int ii = 0;
       for (String string : set) {
-        map.put(string, ii);
+        tagMap.put(string, ii);
         ii++;
       }
+      int totalTags = ii;
        System.out.println("Max tags per photo: " + t[t.length - 1]);
       // System.out.println();
        System.out.println("Total different tags: " + set.size());
@@ -125,7 +138,7 @@ public class Main {
         int[] ts = new int[p.tags.size()];
         int j = 0;
         for (String ss : p.tags) {
-          ts[j] = map.get(ss);
+          ts[j] = tagMap.get(ss);
           j++;
         }
         p.ts = ts;
@@ -223,7 +236,69 @@ public class Main {
         }
       }
       if (algo == 2) {
+        Map<Integer, Set<Photo>> map = new HashMap<Integer, Set<Photo>>();
+        for (int i = 0; i < totalTags; i++) {
+          map.put(i,  new HashSet<Photo>());
+        }
+        for (Photo photo : sorted) {
+          for (int tagId : photo.ts) {
+            map.get(tagId).add(photo);
+          }
+        }
         
+        Photo p = sorted.get(0);
+        
+        done = false;
+        result.add(p);
+        for (int i = 0; i < p.ts.length; i++) {
+          map.get(p.ts[i]).remove(p);
+        }
+        while (!done) {
+          Photo nextPhoto = null;
+          int bestsc = -1;
+          Set<Integer> photoIdx = new HashSet<Integer>();
+          for (int i = 0; i < p.ts.length; i++) {
+            for (Photo photo : map.get(p.ts[i])) {
+              if (photoIdx.contains(photo.index)) {
+                continue;
+              }
+              int sc = getScore(p, photo);
+              if (sc > bestsc) {
+                nextPhoto = photo;
+                bestsc = sc;
+              } else if (sc == bestsc) {
+                if (nextPhoto.ts.length > photo.ts.length) {
+                  nextPhoto = photo;
+                  bestsc = sc;                  
+                }
+              }
+            }
+          }
+          
+          if (nextPhoto == null) {
+            for (Iterator iterator = map.keySet().iterator(); iterator.hasNext();) {
+              Integer integer = (Integer) iterator.next();
+              Set<Photo> photoset = map.get(integer);
+              if (photoset == null) {
+                //iterator.remove();
+                continue;
+              }
+              if (!photoset.isEmpty()) {
+                nextPhoto = photoset.iterator().next();
+                break;
+              }
+            }
+          }
+          if (nextPhoto == null) {
+            break;
+          }
+          p = nextPhoto;
+          result.add(p);
+          for (int i = 0; i < p.ts.length; i++) {
+            map.get(p.ts[i]).remove(p);
+          }
+          
+        }
       }
 
       writer.println(result.size());
